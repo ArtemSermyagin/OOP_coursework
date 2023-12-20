@@ -38,7 +38,6 @@ class Vacancies:
         """
         return self.salary < other.salary
 
-
     def validate_data(self):
         pass
 
@@ -71,8 +70,32 @@ class SaveJsonABC(ABC):
         """
         raise NotImplemented
 
-class SaveJson(SaveJsonABC):
 
-    def to_json(self, file_name):
-        with open(file_name, "w") as f:
-            json.dump(self.__dict__, f, indent=4, ensure_ascii=False)
+class SaveJson(SaveJsonABC):
+    def __init__(self, file_name="vacancies.json"):
+        self.file_name = file_name
+        self.vacancies = []
+
+    def add_job(self, job):
+        self.vacancies.append(job)
+        self.to_json()
+        print(f"Вакансия записана в {self.file_name}")
+
+    def get_jobs(self, criteria):
+        return [
+            Vacancies(**vacancy)
+            for vacancy in self.vacancies
+            if all(vacancy.get(key) == value for key, value in criteria.items())
+        ]
+
+    def delete_jobs(self, criteria):
+        vacancy_data = vars(criteria)
+        if vacancy_data in self.vacancies:
+            self.vacancies.remove(vacancy_data)
+            self.to_json()
+            return True
+        return False
+
+    def to_json(self):
+        with open(self.file_name, "w") as f:
+            json.dump(self.vacancies, f, indent=4, ensure_ascii=False)
