@@ -33,6 +33,6 @@ class HeadHunterAPI(API):
             )
             return []
 
-
-probe = HeadHunterAPI()
-pprint(probe.get_response("python"))
+#
+# probe = HeadHunterAPI()
+# pprint(probe.get_response("python"))

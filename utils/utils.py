@@ -10,14 +10,14 @@ json_data = s.get_response()
 # print(json_data)
 
 class Vacancies:
-    def __init__(self, title, link, salary, description):
+    def __init__(self, title, link, salary):
         self.title = title
         self.link = link
         self.salary = salary
-        self.description = description
+        self.validate_data()
 
     def __str__(self):
-        return f"{self.title}\n{self.link}\n{self.salary}\n{self.description}"
+        return f"{self.title}\n{self.salary}"
 
     def __eq__(self, other: int) -> bool:
         """
@@ -39,7 +39,17 @@ class Vacancies:
         return self.salary < other.salary
 
     def validate_data(self):
-        pass
+        if self.salary and isinstance(self.salary, dict):
+            from_ = self.salary.get("from")
+            to = self.salary.get("to")
+            self.salary["from"] = from_ if from_ else 0
+            self.salary["to"] = to if to else 0
+        else:
+            self.salary = {
+                "from": 0,
+                "to": 0,
+            }
+
 
 
 class SaveJsonABC(ABC):

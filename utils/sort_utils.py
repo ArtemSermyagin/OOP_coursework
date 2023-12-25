@@ -27,9 +27,12 @@ def print_vacancies(vacancies):
         print(vacancy)
 
 
-def filter_vacancies(vacancies, filter_words):
+def filter_vacancies(vacancies, filter_words): # перенести в класс вакансий
     filtered_vacancies = []
     for vacancy in vacancies:
-        if all(word.lower() in vacancy.description.lower() for word in filter_words):
-            filtered_vacancies.append(vacancy)
+        for filter_word in filter_words:
+            if filter_word in vacancy.lower():
+                filtered_vacancies.append(vacancy)
+                break
+
     return filtered_vacancies
