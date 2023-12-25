@@ -1,111 +1,62 @@
-import json
-from abc import ABC, abstractmethod
+def sort_vacancies(vacancies):
+    """
+    Сортирует вакансии по зарплате.
 
-from api.api_superjob import SuperJobAPI
+    Parameters:
+    - vacancies (List[Dict]): Список вакансий.
 
-s = SuperJobAPI()
-json_data = s.get_response()
-
-
-# print(json_data)
-
-class Vacancies:
-    def __init__(self, title, link, salary):
-        self.title = title
-        self.link = link
-        self.salary = salary
-        self.validate_data()
-
-    def __str__(self):
-        return f"{self.title}\n{self.salary}"
-
-    def __eq__(self, other: int) -> bool:
-        """
-        Сравнивает значение атрибута salary текущего объекта
-        со значением атрибута salary другого объекта
-        :param other: int
-        :return: bool
-        """
-        return self.salary == other.salary
-
-    def __lt__(self, other: int) -> bool:
-        """
-        Сравнивает значение атрибута salary текущего объекта со значением
-        атрибута salary другого объекта. Если значение атрибута
-        salary текущего объекта меньше значения атрибута salary другого объекта
-        :param other: int
-        :return: bool
-        """
-        return self.salary < other.salary
-
-    def validate_data(self):
-        if self.salary and isinstance(self.salary, dict):
-            from_ = self.salary.get("from")
-            to = self.salary.get("to")
-            self.salary["from"] = from_ if from_ else 0
-            self.salary["to"] = to if to else 0
-        else:
-            self.salary = {
-                "from": 0,
-                "to": 0,
-            }
+    Returns:
+    - List[Dict]: Отсортированный список вакансий.
+    """
+    return sorted(vacancies, key=lambda vacancy: (vacancy.salary["from"] + vacancy.salary["to"]) / 2)
 
 
+def get_top_vacancies(vacancies, n):
+    """
+    Возвращает топ-N вакансий.
 
-class SaveJsonABC(ABC):
-    @abstractmethod
-    def add_job(self, job):
-        """
-        Абстрактный метод для добавления вакансии
-        :param job: Вакансия для добавления
-        :return: bool
-        """
-        raise NotImplemented
+    Parameters:
+    - vacancies (List[Vacancy]): Список вакансий.
+    - n (int): Количество вакансий для вывода.
 
-    @abstractmethod
-    def get_jobs(self, criteria):
-        """
-        Абстрактный метод для получения списка вакансий по заданным критериям
-        :param criteria: фильтр
-        :return: list
-        """
-        raise NotImplemented
-
-    @abstractmethod
-    def delete_jobs(self, criteria):
-        """
-        Абстрактный метод для удаления вакансии
-        :param criteria: Вакансия
-        :return: bool
-        """
-        raise NotImplemented
+    Returns:
+    - List[Vacancy]: Топ-N вакансий.
+    """
+    return vacancies[:n]
 
 
-class SaveJson(SaveJsonABC):
-    def __init__(self, file_name="vacancies.json"):
-        self.file_name = file_name
-        self.vacancies = []
+def print_vacancies(vacancies):
+    """
+    Выводит информацию о вакансиях в консоль.
 
-    def add_job(self, job):
-        self.vacancies.append(job)
-        self.to_json()
-        print(f"Вакансия записана в {self.file_name}")
+    Parameters:
+    - vacancies (List[Dict]): Список вакансий.
+    """
+    for num_vacancy, vacancy in enumerate(vacancies, start=1):
+        title = vacancy.title if hasattr(vacancy, 'title') else 'Название вакансии отсутствует'
+        salary = getattr(vacancy, 'salary', 'Зарплата не указана')
+        link = getattr(vacancy, 'link', 'Ссылка не указана')
 
-    def get_jobs(self, criteria):
-        return [
-            Vacancies(**vacancy)
-            for vacancy in self.vacancies
-            if all(vacancy.get(key) == value for key, value in criteria.items())
-        ]
+        print(f"{num_vacancy}. {title} ({salary}): {link}")
 
-    def delete_jobs(self, criteria):
-        vacancy_data = vars(criteria)
-        if vacancy_data in self.vacancies:
-            self.vacancies.remove(vacancy_data)
-            self.to_json()
-            return True
-        return False
 
-    def to_json(self):
-        with open(self.file_name, "w") as f:
-            json.dump(self.vacancies, f, indent=4, ensure_ascii=False)
+def filter_vacancies(vacancies, filter_words):
+    """
+    Фильтрует вакансии по заданным ключевым словам.
+
+    Parameters:
+    - vacancies (list): Список вакансий.
+    - filter_words (list): Ключевые слова.
+
+    Returns:
+    - list: Список отфильтрованных вакансий.
+    """
+
+    filtered_vacancies = []
+    for vacancy in vacancies:
+        for filter_word in filter_words:
+            if filter_word in vacancy.title.lower():
+                filtered_vacancies.append(vacancy)
+                break
+
+    return filtered_vacancies
