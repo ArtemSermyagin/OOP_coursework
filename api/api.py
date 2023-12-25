@@ -58,7 +58,7 @@ class SuperJobAPI(AbstractAPI):
 
     def get_vacancies(self, search_query):
         headers = {
-            "X-Api-App-Id": os.getenv("API_S_JOB")
+            "X-Api-App-Id": os.getenv("API_KEY_SUPERJOB")
         }
         url = f"https://api.superjob.ru/2.0/vacancies/?keyword={search_query}"
         response = requests.get(url, headers=headers)
